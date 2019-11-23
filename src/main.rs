@@ -1,8 +1,8 @@
-use compiletime_sort_derive::sort;
+#![feature(proc_macro_hygiene)]
 
-#[sort]
-const ARR: [usize; 10] = [5, 1, 3, 1, 6, 1, 73, 1, 2, 7];
+use compiletime_sort_derive::sort_panic;
 
 fn main() {
+    let arr = sort_panic!([5, 1, 3, 1, 6, 1, 73, 1, 2, 7]);
     println!("Hello, world!");
 }

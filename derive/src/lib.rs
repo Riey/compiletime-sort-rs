@@ -1,6 +1,6 @@
 extern crate proc_macro;
 
-use syn::{parse_macro_input, BinOp, Expr, ExprBinary, ExprLit, ExprUnary, ItemConst, Lit, UnOp};
+use syn::{parse_macro_input, BinOp, Expr, ExprArray, ExprBinary, ExprLit, ExprUnary, Lit, UnOp};
 
 use proc_macro::TokenStream;
 
@@ -37,14 +37,7 @@ fn eval_expr(expr: Expr) -> i64 {
     }
 }
 
-#[proc_macro_attribute]
-pub fn sort(_attr: TokenStream, item: TokenStream) -> TokenStream {
-    let arr = parse_macro_input!(item as ItemConst);
-    let arr = match *arr.expr {
-        Expr::Array(arr) => arr,
-        _ => panic!("Const expr is must array"),
-    };
-
+fn sort_impl(arr: ExprArray) -> Vec<i64> {
     let mut ret = Vec::with_capacity(arr.elems.len());
 
     for elem in arr.elems {
@@ -53,6 +46,28 @@ pub fn sort(_attr: TokenStream, item: TokenStream) -> TokenStream {
 
     ret.sort_unstable();
 
-    panic!("{:?}", ret);
+    ret
+}
+
+#[proc_macro]
+pub fn sort(arr: TokenStream) -> TokenStream {
+    let arr = parse_macro_input!(arr as ExprArray);
+    let ret = sort_impl(arr);
+
+    let output = quote::quote! {
+        [
+            #(#ret),*
+        ]
+    };
+
+    output.into()
+}
+
+#[proc_macro]
+pub fn sort_panic(arr: TokenStream) -> TokenStream {
+    let arr = parse_macro_input!(arr as ExprArray);
+    let ret = sort_impl(arr);
+
+    panic!("sorted: {:?}", ret);
 }
 
