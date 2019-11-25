@@ -1,0 +1,3 @@
+[build]
+rustflags = ["-Zunleash-the-miri-inside-of-you"]
+
